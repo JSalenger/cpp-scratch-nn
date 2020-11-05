@@ -9,16 +9,22 @@
 #include <iostream>
 #include <vector>
 #include <string>
+#include <numeric>
+#include <time.h>
 
 
 double db_dot_product(std::vector<double> x, std::vector<double> y) {
     
-    float sum = 0;
+    /*
+    I found out about inner_product, rip for my custom solution :(
     for(int i = 0; i < x.size(); i++) {
         sum += x[i]*y[i];
+        std::cout << sum << " = " << x[i] << " * " << y[i] << "\n";
     }
+    std::cout << std::endl; 
+    */
     
-    return sum;
+    return std::inner_product(std::begin(x), std::end(x), std::begin(y), 0.0);
 }
 
 class LayerDense {
@@ -36,22 +42,14 @@ class LayerDense {
             for(int n = 0; n < n_neurons; n++) {
                 std::vector<double> weightRow;
                 for (int i = 0; i < n_inputs; i++) {
-                    // give each weight a value from -1 to 1 with 3 decimals of presicion
-                    // we make a number like 10123 then divide by 10000 to get .10123
+                    // give each weight a value from -.1 to .1 with 3 decimals of presicion
+                    // we make a number like 10123 then divide by 100000 to get .010123
                     // then subtract by half the max ( plus .0 to make a double ) 
                     // so we get an equal amount of negative and positive weights
-                    weightRow.push_back(((std::rand() % 20001) - 10000.0)/10000);
+                    weightRow.push_back(((std::rand() % 20001) - 10000.0)/100000);
                 }
                 weights.push_back(weightRow);
             }
-
-            for (std::vector<double> v : weights) {
-                for (double d : v) {
-                    std::cout << std::to_string(d) + ", ";
-                }
-                std::cout << "\n";
-            }
-
             // init biases
             // shape of bias matrix is (1, n_neurons) set them all to 0
             // creat new scope so temp row var doesn't leak into global namespace
@@ -66,20 +64,19 @@ class LayerDense {
         }
 
         std::vector<std::vector<double>> forward(std::vector<std::vector<double>> inputs) {
-            // calculate the outputs for each neuron in layer
-            int neuronCount = 0;
 
-            for(std::vector<double> w : weights) {
-                std::vector<double> outputForNeuron;
-                // AND THEN for each neuron in the layer we calculate each output in the batch
-                for (std::vector<double> i : inputs) {
-                    outputForNeuron.push_back(db_dot_product(w, i) + biases[0][neuronCount]);
+            // construct our output with shape x axis size of batch size and y axis of n_neurons
+            for(std::vector<double> i : inputs) {
+                std::vector<double> outputRow;
+
+                int neuronCount = 0;
+                for (std::vector<double> w : weights) {
+                    outputRow.push_back(db_dot_product(w, i) + biases[0][neuronCount]);
+
+                    neuronCount++;
                 }
 
-                // now that we have the outputs for the neuron append them to the output list
-                outputs.push_back(outputForNeuron);
-
-                neuronCount++;
+                outputs.push_back(outputRow);
             }
 
             return outputs;
@@ -89,16 +86,20 @@ class LayerDense {
 int main(int argc, const char * argv[]) {
     std::cout << "Starting.... \n";
     
+    std::srand(std::time(NULL));
+    
     std::vector<std::vector<double>> X = {{1, 2, 3, 2.5}, {2.0, 5.0, -1.0, 2.0}, {-1.5, 2.7, 3.3, -0.8}};
 
     LayerDense ld(4, 5);
+    LayerDense ld2(5, 3);
+    
+    std::vector<std::vector<double>> output = ld2.forward(ld.forward(X));
 
-    std::vector<std::vector<double>> output = ld.forward(X);
     std::cout << "---- OUTPUT ----" << std::endl;
 
     for (std::vector<double> v : output) {
         for (double d : v) {
-            std::cout << std::to_string(d) + ", ";
+            std::cout << d << ", ";
         }
         std::cout << "\n";
     }
