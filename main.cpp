@@ -11,6 +11,7 @@
 #include <string>
 #include <numeric>
 #include <time.h>
+#include "data.hpp"
 
 
 double db_dot_product(std::vector<double> x, std::vector<double> y) {
@@ -26,6 +27,28 @@ double db_dot_product(std::vector<double> x, std::vector<double> y) {
     
     return std::inner_product(std::begin(x), std::end(x), std::begin(y), 0.0);
 }
+
+class ReLU {
+    public:
+        std::vector<std::vector<double>> forward(std::vector<std::vector<double>> input) {
+            std::vector<std::vector<double>> output;
+
+            for (std::vector<double> v : input) {
+                std::vector<double> outputRow;
+                for(double d : v) {
+                    if (d > 0) {
+                        outputRow.push_back(d);
+                    } else {
+                        outputRow.push_back(0);
+                    }
+                }
+
+                output.push_back(outputRow);
+            }
+
+            return output;
+        }
+};
 
 class LayerDense {
     private:
@@ -88,20 +111,23 @@ int main(int argc, const char * argv[]) {
     
     std::srand(std::time(NULL));
     
-    std::vector<std::vector<double>> X = {{1, 2, 3, 2.5}, {2.0, 5.0, -1.0, 2.0}, {-1.5, 2.7, 3.3, -0.8}};
+    Data d;
 
-    LayerDense ld(4, 5);
-    LayerDense ld2(5, 3);
+    std::vector<std::vector<double>> X = d.getDataX();
+    std::vector<double> y = d.getDataY();
+
+    LayerDense ld(2, 5);
+    ReLU activation;
     
-    std::vector<std::vector<double>> output = ld2.forward(ld.forward(X));
+    std::vector<std::vector<double>> output = activation.forward(ld.forward(X));
 
     std::cout << "---- OUTPUT ----" << std::endl;
 
-    for (std::vector<double> v : output) {
+    for (std::vector<double> v : output) {    
         for (double d : v) {
             std::cout << d << ", ";
         }
-        std::cout << "\n";
+        std::cout << std::endl;
     }
 
     return 0;
