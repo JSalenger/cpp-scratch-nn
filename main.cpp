@@ -31,6 +31,12 @@ double db_dot_product(std::vector<double> x, std::vector<double> y) {
 class ReLU {
     public:
         std::vector<std::vector<double>> forward(std::vector<std::vector<double>> input) {
+            /*
+
+            Takes a matrix and replaces everything less than 0 with 0
+
+            */
+
             std::vector<std::vector<double>> output;
 
             for (std::vector<double> v : input) {
@@ -122,13 +128,18 @@ int main(int argc, const char * argv[]) {
     std::vector<std::vector<double>> output = activation.forward(ld.forward(X));
 
     std::cout << "---- OUTPUT ----" << std::endl;
-
-    for (std::vector<double> v : output) {    
-        for (double d : v) {
-            std::cout << d << ", ";
+    {
+        std::cout << "[";
+        for(int i = 0; i < output[0].size()-1; i++) {
+            std::cout << output[0][i] << ", ";
         }
-        std::cout << std::endl;
+        std::cout << output[0][output[0].size()-1] << "...";
+        for(int i = 0; i < output[output.size()-1].size()-1; i++) {
+            std::cout << output[output.size()-1][i] << ", ";
+        }
+        std::cout << output[output.size()-1][output[output.size()-1].size()] << "]\n";
     }
+
 
     return 0;
 }
