@@ -2,8 +2,8 @@
 //  main.cpp
 //  NeuralNet
 //
-//  Created by Jón Salenger on 11/3/20.
-//  Copyright © 2020 Jón Salenger. All rights reserved.
+//  Created by jsalenger on 11/3/20.
+//  Copyright © 2020 jsalenegr. All rights reserved.
 //
 
 #include <iostream>
